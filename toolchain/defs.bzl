@@ -344,10 +344,9 @@ def declare_files(os):
                 "lib/libunwind/**",
                 "lib/compiler_rt/**",
                 "lib/std/**",
-                "lib/tsan/**",
                 "lib/*.zig",
                 "lib/*.h",
-            ]),
+            ], allow_empty = True),
         )
 
         filegroup(
