@@ -147,15 +147,22 @@ def _zig_repository_impl(repository_ctx):
 
     zig_sha256 = repository_ctx.attr.host_platform_sha256[host_platform]
     zig_ext = repository_ctx.attr.host_platform_ext[host_platform]
+
+    # Zig download URLs use {arch}-{os} format (e.g., x86_64-linux)
+    zig_host_platform = "{}-{}".format(host_arch, host_os)
+    zig_exec_platform = "{}-{}".format(exec_arch, exec_os)
+
     format_vars = {
         "_ext": zig_ext,
         "version": repository_ctx.attr.version,
         "host_platform": host_platform,
+        "zig_host_platform": zig_host_platform,
     }
     format_vars_exec = {
         "_ext": repository_ctx.attr.host_platform_ext[exec_platform],
         "version": repository_ctx.attr.version,
         "host_platform": exec_platform,
+        "zig_host_platform": zig_exec_platform,
     }
 
     for dest, src in {
@@ -177,7 +184,7 @@ def _zig_repository_impl(repository_ctx):
     repository_ctx.download_and_extract(
         auth = use_netrc(read_user_netrc(repository_ctx), urls, {}),
         url = urls,
-        stripPrefix = "zig-{host_platform}-{version}/".format(**format_vars),
+        stripPrefix = "zig-{zig_host_platform}-{version}/".format(**format_vars),
         sha256 = zig_sha256,
     )
 
@@ -259,7 +266,7 @@ def _zig_repository_impl(repository_ctx):
     repository_ctx.download_and_extract(
         auth = use_netrc(read_user_netrc(repository_ctx), urls, {}),
         url = urls,
-        stripPrefix = "zig-{host_platform}-{version}/".format(**format_vars_exec),
+        stripPrefix = "zig-{zig_host_platform}-{version}/".format(**format_vars_exec),
         sha256 = repository_ctx.attr.host_platform_sha256[exec_platform],
     )
 
