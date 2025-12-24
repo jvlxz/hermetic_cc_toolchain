@@ -303,13 +303,13 @@ def declare_files(os):
         for t in _BUILTIN_TOOLS + ["zig-wrapper"]:
             native.alias(name = "tools/{}".format(t), actual = ":tools/{}.exe".format(t))
 
-    filegroup(name = "all", srcs = native.glob(["**"]))
-    filegroup(name = "lib/std", srcs = native.glob(["lib/std/**"]))
+    filegroup(name = "all", srcs = native.glob(["**"], allow_empty = True))
+    filegroup(name = "lib/std", srcs = native.glob(["lib/std/**"], allow_empty = True))
     filegroup(name = "empty")
     lazy_filegroups = {}
 
     for target_config in target_structs():
-        all_includes = [native.glob(["lib/{}/**".format(i)]) for i in target_config.includes]
+        all_includes = [native.glob(["lib/{}/**".format(i)], allow_empty = True) for i in target_config.includes]
 
         cxx_tool_label = ":" + zig_tool_path(os).format(
             zig_tool = "c++",
@@ -366,7 +366,7 @@ def declare_files(os):
         for d in _DEFAULT_INCLUDE_DIRECTORIES + target_config.includes:
             d = "lib/" + d
             if d not in lazy_filegroups:
-                lazy_filegroups[d] = filegroup(name = d, srcs = native.glob([d + "/**"]))
+                lazy_filegroups[d] = filegroup(name = d, srcs = native.glob([d + "/**"], allow_empty = True))
 
 def _flatten(iterable):
     result = []
