@@ -344,6 +344,7 @@ def declare_files(os):
                 "lib/libunwind/**",
                 "lib/compiler_rt/**",
                 "lib/std/**",
+                "lib/c/**",
                 "lib/*.zig",
                 "lib/*.h",
             ], allow_empty = True),

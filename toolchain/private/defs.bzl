@@ -147,11 +147,15 @@ def _target_windows(gocpu, zigcpu):
 def _target_linux_gnu(gocpu, zigcpu, glibc_version):
     glibc_suffix = "gnu.{}".format(glibc_version)
 
+    # Zig 0.15.2+ combines x86 and x86_64 into x86-linux-gnu directory
+    # The headers use preprocessor defines (__x86_64__) to handle both
+    libc_include_dir = "x86" if zigcpu == "x86_64" else zigcpu
+
     return struct(
         gotarget = "linux_{}_{}".format(gocpu, glibc_suffix),
         zigtarget = "{}-linux-{}".format(zigcpu, glibc_suffix),
         includes = [
-                       "libc/include/{}-linux-gnu".format(zigcpu),
+                       "libc/include/{}-linux-gnu".format(libc_include_dir),
                        "libc/include/generic-glibc",
                    ] +
                    # x86_64-linux-any is x86_64-linux and x86-linux combined.
@@ -208,6 +212,7 @@ def _target_wasm():
         zigtarget = "wasm32-wasi-musl",
         includes = [
             "libc/include/wasm-wasi-musl",
+            "libc/include/generic-musl",
             "libc/wasi",
         ] + _INCLUDE_TAIL,
         linkopts = [],
