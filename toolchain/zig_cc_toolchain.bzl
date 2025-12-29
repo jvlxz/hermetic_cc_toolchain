@@ -144,6 +144,7 @@ def _zig_cc_toolchain_config_impl(ctx):
         enabled = ctx.attr.supports_dynamic_linker,
     )
 
+
     strip_debug_symbols_feature = feature(
         name = "strip_debug_symbols",
         flag_sets = [
@@ -159,10 +160,36 @@ def _zig_cc_toolchain_config_impl(ctx):
         ],
     )
 
+    # Feature to set runtime library search paths (RPATH) for dynamic linking.
+    # Uses $ORIGIN to create relocatable binaries that find shared libraries
+    # relative to the executable location.
+    runtime_library_search_directories_feature = feature(
+        name = "runtime_library_search_directories",
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "runtime_library_search_directories",
+                        flag_groups = [
+                            flag_group(
+                                flags = [
+                                    "-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}",
+                                ],
+                            ),
+                        ],
+                        expand_if_available = "runtime_library_search_directories",
+                    ),
+                ],
+            ),
+        ],
+    )
+
     features = [
         compile_and_link_flags,
         default_linker_flags,
         supports_dynamic_linker,
+        runtime_library_search_directories_feature,
         strip_debug_symbols_feature,
     ] + _compilation_mode_features(ctx)
 
